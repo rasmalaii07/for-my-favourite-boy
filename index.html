@@ -4,106 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Surprise for You ❤️</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
         :root { --pink: #ffafcc; --red: #ff4d6d; --cream: #fff5f5; }
-        body { background-color: var(--cream); font-family: 'Georgia', serif; overflow-x: hidden; text-align: center; margin: 0; }
+        body { background: linear-gradient(135deg, #fff5f5 0%, #ffafcc 100%); font-family: 'Quicksand', sans-serif; margin: 0; text-align: center; overflow-x: hidden; }
         
-        /* Game Styles */
-        #game-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .heart-target { position: absolute; font-size: 40px; cursor: pointer; transition: transform 0.2s; z-index: 10; }
-        #score-board { font-size: 24px; color: var(--red); margin-bottom: 20px; font-weight: bold; }
-        
-        /* Gift Box Styles (Hidden at first) */
-        #gift-section { display: none; padding: 50px 20px; }
-        .box { font-size: 100px; cursor: pointer; animation: bounce 2s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        
-        /* The Letter & Kisses */
-        #reveal { display: none; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; margin: 20px auto; position: relative; }
-        .letter-text { color: #555; line-height: 1.6; font-size: 18px; }
-        .kiss { position: absolute; font-size: 30px; opacity: 0.7; pointer-events: none; }
+        /* START PAGE COUNTER (Base of Screen) */
+        #start-counter-wrap { position: fixed; bottom: 20px; width: 100%; z-index: 5; }
+        #start-counter { background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 30px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid var(--pink); color: #555; }
 
-        /* Aesthetic Floating Stickers */
-        .sticker { position: fixed; opacity: 0.6; z-index: 1; pointer-events: none; }
+        /* GAME STYLES */
+        #game-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .heart-target { position: absolute; font-size: 50px; cursor: pointer; transition: all 0.3s; z-index: 10; }
+        
+        /* AERIAL VIEW GIFT BOX */
+        #gift-section { display: none; padding: 20px; min-height: 100vh; position: relative; }
+        #flat-lay-box { 
+            background: white; width: 90%; max-width: 600px; height: 500px; margin: 40px auto; 
+            border-radius: 10px; position: relative; box-shadow: inset 0 0 50px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.1);
+            padding: 20px; border: 15px solid #fff; overflow: hidden;
+        }
+
+        /* Interactive Items in Box */
+        .box-item { position: absolute; cursor: pointer; transition: transform 0.3s; }
+        .box-item:hover { transform: scale(1.1) rotate(5deg); }
+        
+        /* Overlay for Item View */
+        #item-overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,245,245,0.98); z-index: 100; justify-content: center; align-items: center; padding: 20px;
+        }
+        .overlay-content { background: white; padding: 30px; border-radius: 20px; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--red); }
+        .reset-btn { margin-top: 30px; padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 20px; cursor: pointer; display: none; }
+
+        .kiss { position: absolute; font-size: 40px; pointer-events: none; animation: fadeOut 2s forwards; }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
-    <!-- STAGE 1: CATCH THE HEARTS -->
+    <!-- START PAGE -->
     <div id="game-container">
-        <div id="score-board">Catch 5 hearts to unlock your gift! ❤️ <br> Score: <span id="score">0</span></div>
-        <div id="play-area" style="height: 60vh; width: 80vw; position: relative; border: 2px dashed var(--pink); border-radius: 20px;">
-            <!-- Hearts will pop up here -->
-        </div>
-    </div>
-
-    <!-- STAGE 2: THE GIFT BOX -->
-    <div id="gift-section">
-        <h1 style="color: var(--red);">Yay! You caught them!</h1>
-        <p>Click the box to open your surprise...</p>
-        <div class="box" onclick="openGift()">🎁</div>
+        <h2 style="font-family: 'Dancing Script'; color: var(--red); font-size: 35px;">Catch 5 Hearts for a Surprise... ❤️</h2>
+        <div id="play-area" style="height: 60vh; width: 85vw; position: relative;"></div>
         
-        <div id="reveal">
-            <div class="letter-text">
-                <h2>To My Favorite Human,</h2>
-                <p>Hey, pretty boy. This is the first time I've tried something like this and you know I have negligible experience in doing this, so I hope you like it. 
-                  You are the best thing that ever happened to me and I'm so glad to have found you. Being with you for a little over a year, I've realised that love isn't always supposed to be perfect. It can get messy, but I wouldn't want to deal with this mess with anyone else. I know how much you love me and I am more than willing to be patient with you despite all my crashouts :p
-                  I love you more than all these hearts you just caught. 💋</p>
-                <p><strong>P.S. Look at all these kisses for you!</strong></p>
+        <div id="start-counter-wrap">
+            <div id="start-counter">
+                <span style="font-weight:bold; color: var(--red);">We started:</span> <br>
+                <span id="timer-display">Calculating...</span>
             </div>
         </div>
     </div>
 
-    <!-- Background Stickers (Emojis) -->
-    <div class="sticker" style="top:10%; left:5%; font-size: 50px;">🌸</div>
-    <div class="sticker" style="bottom:10%; right:10%; font-size: 60px;">🎀</div>
-    <div class="sticker" style="top:20%; right:5%; font-size: 40px;">✨</div>
+    <!-- BOX SECTION -->
+    <div id="gift-section">
+        <h1 style="font-family: 'Dancing Script'; color: var(--red);">Inside Your Box...</h1>
+        <p>Click on an item to see what's inside!</p>
+        
+        <div id="flat-lay-box">
+            <!-- These are the gifts floating in the box -->
+            <div class="box-item" style="top:20%; left:20%; font-size: 60px;" onclick="showItem('letter')">✉️</div>
+            <div class="box-item" style="top:50%; right:15%; font-size: 50px;" onclick="showItem('ticket')">🎫</div>
+            <div class="box-item" style="bottom:20%; left:25%; font-size: 55px;" onclick="showItem('pizza')">🍕</div>
+            <div class="box-item" style="top:10%; right:25%; font-size: 45px;" onclick="showItem('charm')">🛡️</div>
+            <!-- Added Aesthetic Shredded Paper (Stickers) -->
+            <div style="position:absolute; top:40%; left:50%; color:var(--pink); opacity:0.3; transform:rotate(45deg);">~~~~~</div>
+            <div style="position:absolute; bottom:10%; right:10%; color:var(--pink); opacity:0.3;">~~~~~</div>
+        </div>
+        
+        <button id="final-reset" class="reset-btn" style="display:inline-block;" onclick="location.reload()">Back to Start</button>
+    </div>
+
+    <!-- ITEM REVEAL OVERLAY -->
+    <div id="item-overlay" onclick="closeItem()">
+        <div class="overlay-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeItem()">&times;</span>
+            <div id="overlay-text"></div>
+        </div>
+    </div>
 
     <script>
+        const startDate = new Date("December 1, 2024 23:32:00").getTime();
         let score = 0;
-        const playArea = document.getElementById('play-area');
-        const scoreDisplay = document.getElementById('score');
+        let itemsViewed = 0;
 
+        // TIMER LOGIC
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById("timer-display").innerHTML = `${days}d ${hours}h ${mins}m ${secs}s`;
+        }
+        setInterval(updateTimer, 1000);
+
+        // GAME LOGIC
         function createHeart() {
             const heart = document.createElement('div');
             heart.innerHTML = '❤️';
             heart.className = 'heart-target';
-            heart.style.left = Math.random() * 90 + '%';
-            heart.style.top = Math.random() * 90 + '%';
-            
+            heart.style.left = Math.random() * 80 + '%';
+            heart.style.top = Math.random() * 80 + '%';
             heart.onclick = () => {
                 score++;
-                scoreDisplay.innerText = score;
                 heart.remove();
-                if (score < 5) {
-                    createHeart();
-                } else {
+                if (score < 5) createHeart();
+                else {
                     document.getElementById('game-container').style.display = 'none';
                     document.getElementById('gift-section').style.display = 'block';
                 }
             };
-            playArea.appendChild(heart);
+            document.getElementById('play-area').appendChild(heart);
         }
 
-        function openGift() {
-            document.querySelector('.box').style.display = 'none';
-            document.getElementById('reveal').style.display = 'block';
-            // Shower of kisses
-            for(let i=0; i<20; i++) {
-                setTimeout(createKiss, i * 150);
-            }
+        // GIFT CONTENT DATA
+        const contents = {
+            letter: "<h3>Hey, pretty boy.</h3><p style='text-align:left;'>This is the first time I've tried something like this... You are the best thing that ever happened to me and I'm so glad to have found you. Even when it's messy, I wouldn't want to deal with it with anyone else. I'm willing to be patient with you despite all my crashouts :p</p>",
+            ticket: "<h3>Virtual Coupon</h3><p><b>1 Unlimited Hug</b><br>Valid for a lifetime. Redeemable anytime you feel down or just because, hehe </p>",
+            pizza: "<h3>Pizza Day</h3><p>A virtual pizza because you're the cheesiest person I know :p .</p>",
+            charm: "<h3>Protection Charm</h3><p>I'll always have your back, no matter what. You're never alone, baby. </p>"
+        };
+
+        function showItem(key) {
+            document.getElementById('overlay-text').innerHTML = contents[key];
+            document.getElementById('item-overlay').style.display = 'flex';
+            // Show kisses shower when letter is opened
+            if(key === 'letter') { for(let i=0; i<20; i++) setTimeout(createKiss, i * 100); }
         }
+
+        function closeItem() { document.getElementById('item-overlay').style.display = 'none'; }
 
         function createKiss() {
             const kiss = document.createElement('div');
             kiss.innerHTML = '💋';
             kiss.className = 'kiss';
-            kiss.style.left = Math.random() * 100 + 'vw';
-            kiss.style.top = Math.random() * 100 + 'vh';
+            kiss.style.left = Math.random() * 90 + 'vw';
+            kiss.style.top = Math.random() * 90 + 'vh';
             document.body.appendChild(kiss);
         }
 
-        // Start the game
         createHeart();
     </script>
 </body>
