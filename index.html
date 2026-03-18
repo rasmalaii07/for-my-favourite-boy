@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Surprise for You ❤️</title>
+    <style>
+        :root { --pink: #ffafcc; --red: #ff4d6d; --cream: #fff5f5; }
+        body { background-color: var(--cream); font-family: 'Georgia', serif; overflow-x: hidden; text-align: center; margin: 0; }
+        
+        /* Game Styles */
+        #game-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .heart-target { position: absolute; font-size: 40px; cursor: pointer; transition: transform 0.2s; z-index: 10; }
+        #score-board { font-size: 24px; color: var(--red); margin-bottom: 20px; font-weight: bold; }
+        
+        /* Gift Box Styles (Hidden at first) */
+        #gift-section { display: none; padding: 50px 20px; }
+        .box { font-size: 100px; cursor: pointer; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        
+        /* The Letter & Kisses */
+        #reveal { display: none; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; margin: 20px auto; position: relative; }
+        .letter-text { color: #555; line-height: 1.6; font-size: 18px; }
+        .kiss { position: absolute; font-size: 30px; opacity: 0.7; pointer-events: none; }
+
+        /* Aesthetic Floating Stickers */
+        .sticker { position: fixed; opacity: 0.6; z-index: 1; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <!-- STAGE 1: CATCH THE HEARTS -->
+    <div id="game-container">
+        <div id="score-board">Catch 5 hearts to unlock your gift! ❤️ <br> Score: <span id="score">0</span></div>
+        <div id="play-area" style="height: 60vh; width: 80vw; position: relative; border: 2px dashed var(--pink); border-radius: 20px;">
+            <!-- Hearts will pop up here -->
+        </div>
+    </div>
+
+    <!-- STAGE 2: THE GIFT BOX -->
+    <div id="gift-section">
+        <h1 style="color: var(--red);">Yay! You caught them!</h1>
+        <p>Click the box to open your surprise...</p>
+        <div class="box" onclick="openGift()">🎁</div>
+        
+        <div id="reveal">
+            <div class="letter-text">
+                <h2>To My Favorite Human,</h2>
+                <p>Hey, pretty boy. This is the first time I've tried something like this and you know I have negligible experience in doing this, so I hope you like it. 
+                  You are the best thing that ever happened to me and I'm so glad to have found you. Being with you for a little over a year, I've realised that love isn't always supposed to be perfect. It can get messy, but I wouldn't want to deal with this mess with anyone else. I know how much you love me and I am more than willing to be patient with you despite all my crashouts :p
+                  I love you more than all these hearts you just caught. 💋</p>
+                <p><strong>P.S. Look at all these kisses for you!</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Stickers (Emojis) -->
+    <div class="sticker" style="top:10%; left:5%; font-size: 50px;">🌸</div>
+    <div class="sticker" style="bottom:10%; right:10%; font-size: 60px;">🎀</div>
+    <div class="sticker" style="top:20%; right:5%; font-size: 40px;">✨</div>
+
+    <script>
+        let score = 0;
+        const playArea = document.getElementById('play-area');
+        const scoreDisplay = document.getElementById('score');
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.className = 'heart-target';
+            heart.style.left = Math.random() * 90 + '%';
+            heart.style.top = Math.random() * 90 + '%';
+            
+            heart.onclick = () => {
+                score++;
+                scoreDisplay.innerText = score;
+                heart.remove();
+                if (score < 5) {
+                    createHeart();
+                } else {
+                    document.getElementById('game-container').style.display = 'none';
+                    document.getElementById('gift-section').style.display = 'block';
+                }
+            };
+            playArea.appendChild(heart);
+        }
+
+        function openGift() {
+            document.querySelector('.box').style.display = 'none';
+            document.getElementById('reveal').style.display = 'block';
+            // Shower of kisses
+            for(let i=0; i<20; i++) {
+                setTimeout(createKiss, i * 150);
+            }
+        }
+
+        function createKiss() {
+            const kiss = document.createElement('div');
+            kiss.innerHTML = '💋';
+            kiss.className = 'kiss';
+            kiss.style.left = Math.random() * 100 + 'vw';
+            kiss.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(kiss);
+        }
+
+        // Start the game
+        createHeart();
+    </script>
+</body>
+</html>
