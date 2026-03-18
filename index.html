@@ -3,95 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Surprise for You</title>
+    <title>For My Favorite Person</title>
     <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
-        :root { --pink: #ffafcc; --red: #ff4d6d; --cream: #fff5f5; }
-        body { background: linear-gradient(135deg, #fff5f5 0%, #ffafcc 100%); font-family: 'Quicksand', sans-serif; margin: 0; text-align: center; overflow: hidden; height: 100vh; }
+        :root { --pink: #ffafcc; --red: #ff4d6d; --hot-pink: #ff006e; }
+        body { background: #fff5f5; font-family: 'Quicksand', sans-serif; margin: 0; text-align: center; overflow: hidden; height: 100vh; }
         
-        /* 1. CUSTOM SVG FALLING ANIMATIONS */
-        .falling-item { position: fixed; top: -50px; z-index: 1; pointer-events: none; animation: fall linear infinite; width: 30px; height: 30px; }
+        .falling-item { position: fixed; top: -50px; z-index: 1; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* TIMER AT BASE */
         #start-counter-wrap { position: fixed; bottom: 20px; width: 100%; z-index: 5; }
-        #start-counter { background: rgba(255,255,255,0.9); padding: 10px 25px; border-radius: 30px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid var(--pink); color: #555; }
+        #start-counter { background: white; padding: 12px 25px; border-radius: 30px; display: inline-block; box-shadow: 0 4px 15px rgba(255, 77, 109, 0.2); border: 2px solid var(--pink); color: #444; }
 
-        /* GAME STYLES */
         #game-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2; position: relative; }
-        .heart-sticker { position: absolute; width: 60px; height: 60px; cursor: pointer; transition: transform 0.3s; z-index: 10; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
-        
-        /* AESTHETIC WHITE BOX */
+        .heart-btn { position: absolute; width: 50px; height: 50px; cursor: pointer; transition: transform 0.2s; z-index: 10; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.1)); }
+        #score-board { font-family: 'Dancing Script'; font-size: 28px; color: var(--red); margin-bottom: 10px; }
+
         #gift-section { display: none; padding: 20px; height: 100vh; z-index: 10; position: relative; }
-        #hamper-container { position: relative; width: 320px; height: 320px; margin: 50px auto; cursor: pointer; }
+        #hamper-container { position: relative; width: 340px; height: 400px; margin: 20px auto; cursor: pointer; }
         
         #box-lid { 
             position: absolute; width: 100%; height: 100%; z-index: 20;
-            background-color: white;
-            background-image: radial-gradient(var(--red) 12%, transparent 13%); /* Tiny heart pattern substitute */
-            background-size: 30px 30px;
-            border-radius: 15px; border: 4px solid var(--red);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s;
+            background-color: #fff; border-radius: 12px; border: 4px solid var(--red);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1); transition: transform 1s ease-in-out, opacity 0.8s;
             display: flex; align-items: center; justify-content: center;
         }
 
-        .ribbon-v { position: absolute; width: 40px; height: 100%; background: var(--red); left: 50%; transform: translateX(-50%); }
-        .ribbon-h { position: absolute; width: 100%; height: 40px; background: var(--red); top: 50%; transform: translateY(-50%); }
-        .lid-tag { z-index:30; background:white; padding:8px 20px; border-radius:10px; font-family:'Dancing Script'; font-weight:bold; color:var(--red); border: 2px solid var(--red); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        .ribbon-v { position: absolute; width: 45px; height: 100%; background: var(--red); left: 50%; transform: translateX(-50%); }
+        .ribbon-h { position: absolute; width: 100%; height: 45px; background: var(--red); top: 50%; transform: translateY(-50%); }
+        .lid-text { z-index:30; background:white; padding:5px 15px; border-radius:8px; font-family:'Dancing Script'; color:var(--red); font-size:24px; border: 2px solid var(--red); }
 
-        #flat-lay-box { 
-            background: white; width: 100%; height: 100%; border-radius: 15px; position: absolute; 
-            top: 0; left: 0; padding: 20px; border: 8px solid #fff; overflow: hidden; 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;
+        #hamper-interior { 
+            background: #fff; width: 100%; height: 100%; border-radius: 12px; position: absolute; 
+            top: 0; left: 0; padding: 15px; border: 4px solid #f0f0f0; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; box-sizing: border-box; overflow-y: auto;
         }
 
-        .box-item { width: 90px; height: 90px; object-fit: contain; cursor: pointer; transition: 0.3s; margin: auto; }
-        .box-item:hover { transform: scale(1.15) rotate(3deg); }
+        .svg-icon { width: 70px; height: 70px; cursor: pointer; transition: 0.3s; margin: auto; }
+        .svg-icon:hover { transform: scale(1.1) rotate(5deg); }
 
-        /* ITEM REVEAL OVERLAY */
-        #item-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,245,245,0.98); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
-        .overlay-content { background: white; padding: 40px; border-radius: 30px; max-width: 450px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 3px solid var(--pink); position: relative; }
+        #item-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 100; justify-content: center; align-items: center; }
+        .overlay-content { background: white; padding: 40px; border-radius: 30px; max-width: 450px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); border: 2px solid var(--pink); position: relative; overflow-y: auto; max-height: 80vh; }
     </style>
 </head>
 <body>
 
     <div id="fall-container"></div>
 
-    <!-- START PAGE -->
     <div id="game-container">
-        <h2 style="font-family: 'Dancing Script'; color: var(--red); font-size: 35px;">Catch 5 Hearts for a Surprise...</h2>
+        <div id="score-board">Catch 20 Hearts for Your Surprise! ❤️ <br> <span id="score">0</span> / 20</div>
         <div id="play-area" style="height: 50vh; width: 85vw; position: relative;"></div>
         <div id="start-counter-wrap">
             <div id="start-counter">
-                <span style="font-weight:bold; color: var(--red); font-family: 'Dancing Script'; font-size: 22px;">Time we've spent together:</span> <br>
-                <span id="timer-display" style="font-size: 18px; letter-spacing: 1px;">Calculating...</span>
+                <span style="font-family: 'Dancing Script'; font-size: 24px; color: var(--red);">We started:</span> <br>
+                <span id="timer-display" style="font-size: 18px; font-weight: bold;">Calculating...</span>
             </div>
         </div>
     </div>
 
-    <!-- BOX SECTION -->
     <div id="gift-section">
-        <h1 style="font-family: 'Dancing Script'; color: var(--red); font-size: 40px;">Slide the lid to open! ✨</h1>
+        <h1 style="font-family: 'Dancing Script'; color: var(--red); font-size: 32px;">Your Gift Hamper ✨</h1>
         <div id="hamper-container" onclick="openLid()">
             <div id="box-lid">
                 <div class="ribbon-v"></div>
                 <div class="ribbon-h"></div>
-                <div class="lid-tag">Open Me ❤️</div>
+                <div class="lid-text">Click to Open</div>
             </div>
-            <div id="flat-lay-box">
-                <img src="https://png.pngtree.com" class="box-item" onclick="showItem('letter')">
-                <img src="https://static.vecteezy.com" class="box-item" onclick="showItem('ticket')">
-                <img src="https://static.vecteezy.com" class="box-item" onclick="showItem('pizza')">
-                <img src="https://static.vecteezy.com" class="box-item" onclick="showItem('charm')">
+            <div id="hamper-interior">
+                <!-- 8 Interactive Items -->
+                <div class="svg-icon" onclick="showItem('letter')"><svg viewBox="0 0 100 100"><rect x="10" y="20" width="80" height="60" rx="5" fill="#ffafcc"/><path d="M10 20 L50 50 L90 20" stroke="white" stroke-width="4" fill="none"/></svg></div>
+                <div class="svg-icon" onclick="showItem('hug')"><svg viewBox="0 0 100 100"><rect x="5" y="30" width="90" height="40" rx="5" fill="#ff4d6d"/><text x="15" y="55" fill="white" font-size="10" font-weight="bold">HUG TICKET</text></svg></div>
+                <div class="svg-icon" onclick="showItem('kiss')"><svg viewBox="0 0 100 100"><rect x="5" y="30" width="90" height="40" rx="5" fill="#ff85a1"/><text x="15" y="55" fill="white" font-size="10" font-weight="bold">KISS TICKET</text></svg></div>
+                <div class="svg-icon" onclick="showItem('note1')"><svg viewBox="0 0 100 100"><rect x="20" y="10" width="60" height="80" fill="#fff9c4" stroke="#fbc02d" stroke-width="2"/><line x1="30" y1="30" x2="70" y2="30" stroke="#fbc02d"/><line x1="30" y1="50" x2="70" y2="50" stroke="#fbc02d"/></svg></div>
+                <div class="svg-icon" onclick="showItem('pizza')"><svg viewBox="0 0 100 100"><path d="M50 10 L90 80 L10 80 Z" fill="#FFD93D"/><circle cx="50" cy="50" r="5" fill="#FF6B6B"/><circle cx="40" cy="65" r="5" fill="#FF6B6B"/></svg></div>
+                <div class="svg-icon" onclick="showItem('always')"><svg viewBox="0 0 100 100"><path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" fill="#ffafcc" stroke="#ff4d6d" stroke-width="4"/><text x="25" y="55" fill="#ff4d6d" font-size="10" font-weight="bold">ALWAYS</text></svg></div>
+                <div class="svg-icon" onclick="showItem('note2')"><svg viewBox="0 0 100 100"><rect x="20" y="10" width="60" height="80" fill="#e1f5fe" stroke="#03a9f4" stroke-width="2"/><line x1="30" y1="30" x2="70" y2="30" stroke="#03a9f4"/></svg></div>
+                <div class="svg-icon" onclick="showItem('smile')"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#FFD93D"/><circle cx="35" cy="40" r="5" fill="000"/><circle cx="65" cy="40" r="5" fill="000"/><path d="M30 60 Q50 80 70 60" stroke="000" fill="none" stroke-width="3"/></svg></div>
             </div>
         </div>
-        <button style="margin-top:20px; padding:12px 30px; border-radius:25px; border:none; background:var(--pink); color:white; font-weight:bold; cursor:pointer;" onclick="location.reload()">Back to Start</button>
+        <button style="margin-top:10px; padding:8px 25px; border-radius:20px; border:none; background:var(--pink); color:white; font-weight:bold; cursor:pointer;" onclick="location.reload()">Back to Start</button>
     </div>
 
-    <!-- ITEM REVEAL OVERLAY -->
     <div id="item-overlay" onclick="closeItem()">
         <div class="overlay-content" onclick="event.stopPropagation()">
-            <span style="position:absolute; top:20px; right:25px; font-size:30px; cursor:pointer; color:var(--red);" onclick="closeItem()">×</span>
+            <span style="position:absolute; top:15px; right:20px; font-size:30px; cursor:pointer; color:var(--red);" onclick="closeItem()">×</span>
             <div id="overlay-text"></div>
         </div>
     </div>
@@ -99,24 +94,21 @@
     <script>
         const startDate = new Date("December 1, 2024 23:32:00").getTime();
         let score = 0;
-
-        // 1. CUSTOM AESTHETIC FALLING ITEMS (NO EMOJIS)
-        const heartSVG = `<svg viewBox="0 0 32 32" fill="#ffafcc"><path d="M16 28.5s-12-7.1-12-14.8c0-4.5 3.3-7.7 7.5-7.7 2.5 0 4.1 1.2 4.5 2.5.4-1.3 2-2.5 4.5-2.5 4.2 0 7.5 3.2 7.5 7.7 0 7.7-12 14.8-12 14.8z"/></svg>`;
-        const bowSVG = `<svg viewBox="0 0 512 512" fill="#ff4d6d"><path d="M448 256c0-44.2-35.8-80-80-80-16.1 0-31 4.8-43.5 13.1L256 224l-68.5-34.9c-12.5-8.3-27.4-13.1-43.5-13.1-44.2 0-80 35.8-80 80s35.8 80 80 80c16.1 0 31-4.8 43.5-13.1L256 288l68.5 34.9c12.5 8.3 27.4 13.1 43.5 13.1 44.2 0 80-35.8 80-80z"/></svg>`;
+        const heartSVG = `<svg viewBox="0 0 32 32" style="width:100%; height:100%;"><path d="M16 28.5s-12-7.1-12-14.8c0-4.5 3.3-7.7 7.5-7.7 2.5 0 4.1 1.2 4.5 2.5.4-1.3 2-2.5 4.5-2.5 4.2 0 7.5 3.2 7.5 7.7 0 7.7-12 14.8-12 14.8z" fill="#ff4d6d"/></svg>`;
 
         function createFalling() {
             const el = document.createElement('div');
             el.className = 'falling-item';
-            el.innerHTML = Math.random() > 0.5 ? heartSVG : bowSVG;
+            el.innerHTML = heartSVG;
+            el.style.width = (Math.random() * 20 + 20) + 'px';
             el.style.left = Math.random() * 100 + 'vw';
-            el.style.animationDuration = (Math.random() * 3 + 4) + 's';
-            el.style.opacity = Math.random() * 0.5 + 0.3;
+            el.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            el.style.opacity = '0.4';
             document.getElementById('fall-container').appendChild(el);
-            setTimeout(() => el.remove(), 7000);
+            setTimeout(() => el.remove(), 8000);
         }
-        setInterval(createFalling, 500);
+        setInterval(createFalling, 600);
 
-        // TIMER LOGIC
         function updateTimer() {
             const now = new Date().getTime();
             const diff = now - startDate;
@@ -124,21 +116,21 @@
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const secs = Math.floor((diff % (1000 * 60)) / 1000);
-            document.getElementById("timer-display").innerHTML = `<b>${days}</b>d <b>${hours}</b>h <b>${mins}</b>m <b>${secs}</b>s`;
+            document.getElementById("timer-display").innerHTML = `${days}d ${hours}h ${mins}m ${secs}s`;
         }
         setInterval(updateTimer, 1000);
 
-        // GAME LOGIC (SVG Hearts)
         function createHeart() {
             const heart = document.createElement('div');
-            heart.className = 'heart-sticker';
+            heart.className = 'heart-btn';
             heart.innerHTML = heartSVG;
-            heart.style.left = Math.random() * 80 + '%';
-            heart.style.top = Math.random() * 80 + '%';
+            heart.style.left = Math.random() * 85 + '%';
+            heart.style.top = Math.random() * 85 + '%';
             heart.onclick = () => {
                 score++;
+                document.getElementById('score').innerText = score;
                 heart.remove();
-                if (score < 5) createHeart();
+                if (score < 20) createHeart();
                 else {
                     document.getElementById('game-container').style.display = 'none';
                     document.getElementById('gift-section').style.display = 'block';
@@ -147,20 +139,21 @@
             document.getElementById('play-area').appendChild(heart);
         }
 
-        // OPEN BOX
         function openLid() {
-            new Audio('https://www.soundjay.com').play();
             const lid = document.getElementById('box-lid');
-            lid.style.transform = 'translateY(-450px) rotate(-10deg)';
+            lid.style.transform = 'translateY(-550px) rotate(-10deg)';
             lid.style.opacity = '0';
-            setTimeout(() => { lid.style.display = 'none'; }, 1200);
         }
 
         const contents = {
-            letter: "<h2>Hey, pretty boy.</h2><p style='text-align:left; line-height:1.7;'>This is the first time I've tried something like this... You are the best thing that ever happened to me and I'm so glad to have found you. Being with you for a little over a year, I've realised that love isn't always supposed to be perfect. It can get messy, but I wouldn't want to deal with this mess with anyone else. <br><br> I know how much you love me and I am more than willing to be patient with you despite all my crashouts :p</p>",
-            ticket: "<h2>Unlimited Hugs</h2><p>Valid forever. No expiration date. </p>",
-            pizza: "<h2>Virtual Pizza</h2><p>The cheesiest pizza for the cheesiest guy. </p>",
-            charm: "<h2>Protection Charm</h2><p>I've always got your back. Always. </p>"
+            letter: "<h2>Hey, pretty boy.</h2><p style='text-align:left; line-height:1.6;'>This is the first time I've tried something like this... You are the best thing that ever happened to me. Being with you for a little over a year, I've realised that love isn't always supposed to be perfect. It can get messy, but I wouldn't want to deal with this mess with anyone else. I'm more than willing to be patient with you despite all my crashouts :p</p>",
+            hug: "<h2>Unlimited Hugs</h2><p>Good for one lifetime of warm, cozy hugs whenever you need them. ❤️</p>",
+            kiss: "<h2>Unlimited Kisses</h2><p>A ticket for endless kisses. Can be used anytime, anywhere! 💋</p>",
+            note1: "<h2>Love Note #1</h2><p>I love the way you make me feel safe. You're my home. ✨</p>",
+            pizza: "<h2>Virtual Pizza</h2><p>Extra cheese for the cheesiest boy. 🍕</p>",
+            always: "<h2>Always Love</h2><p>A promise that I'm always on your side, no matter what. 🛡️</p>",
+            note2: "<h2>Love Note #2</h2><p>Thank you for being you. You're my favorite person and I love you so much <3 🌎</p>",
+            smile: "<h2>Smile Generator</h2><p>I hope this website made you smile as much as you make me smile. 😊</p>"
         };
 
         function showItem(key) {
